@@ -4,7 +4,7 @@ time sheet.
 """
 
 import argparse
-import datetime
+from datetime import datetime, date, time
 import pandas as pd
 from simple_colors import blue, yellow
 
@@ -12,12 +12,12 @@ from simple_colors import blue, yellow
 def mystrip(datestring):
     "Strips datetimes based on input."
     if len(datestring.split('-')) == 2:
-        year = str(datetime.date.today().year)
+        year = str(date.today().year)
         datestring = year + '-' + datestring
         pattern = '-%m-%d'
     if len(datestring.split('-')) == 3:
         pattern = '%Y-%m-%d'
-    return datetime.datetime.strptime(datestring, pattern)
+    return datetime.strptime(datestring, pattern)
 
 
 # Set up argparse
@@ -41,10 +41,11 @@ args = parser.parse_args()
 df = pd.read_csv('timesheet.csv')
 
 if args.use == 'a':
+    # If 'append' option is chosen
 
     # Add new date
     date_input = args.date if args.date else str(
-        datetime.datetime.today().date())
+        datetime.today().date())
     df = df.append({'date': date_input,
                     'start': args.start_time,
                     'stop': args.end_time
@@ -58,6 +59,7 @@ if args.use == 'a':
     df.to_csv('timesheet.csv', index=False)
 
 elif args.use == 's':
+    # If timesheet option is chosen
 
     # Turn args into datetime
     date_time_from = mystrip(args.from_date)
@@ -65,9 +67,9 @@ elif args.use == 's':
         date_time_to = mystrip(args.to_date)
     else:
         # If to-date not supplied, go until tonight
-        today = datetime.datetime.now().date()
-        tonight = datetime.time(hour=23, minute=59)
-        date_time_to = datetime.datetime.combine(today, tonight)
+        today = datetime.now().date()
+        tonight = time(hour=23, minute=59)
+        date_time_to = datetime.combine(today, tonight)
 
     # Turn date column into datetime
     df.date = df.date.apply(mystrip)
